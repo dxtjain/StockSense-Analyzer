@@ -1,0 +1,61 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+.conda/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Results and data files
+results/
+data/*.csv
+!data/stocks.csv
+
+# Plot files
+*.png
+*.jpg
+*.pdf
+*.svg
+*.gif
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+*.egg
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# Streamlit specific
+.streamlit/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Cache directories
+__pycache__/
+.cache/
+.pytest_cache/
+.coverage
+htmlcov/
