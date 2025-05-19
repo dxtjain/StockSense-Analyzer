@@ -32,6 +32,10 @@ st.set_page_config(
     }
 )
 
+# Initialize session state for page navigation
+if 'page' not in st.session_state:
+    st.session_state.page = "Dashboard"
+
 # Debug information - only show in development mode
 debug_mode = False  # Set to True for debugging
 
@@ -294,12 +298,16 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
     
-    # Custom navigation buttons
+    # Custom navigation buttons using session state
     options = ["Dashboard", "AI Analysis", "Data Explorer", "About"]
     icons = ["📈", "🤖", "🔍", "ℹ️"]
     
+    # Function to change page
+    def change_page(new_page):
+        st.session_state.page = new_page
+    
     for i, (option, icon) in enumerate(zip(options, icons)):
-        if option == page:
+        if option == st.session_state.page:
             st.markdown(f"""
             <div style="background-color: rgba(77, 166, 255, 0.2); padding: 10px; border-radius: 8px; margin-bottom: 10px; cursor: pointer; border: 1px solid rgba(77, 166, 255, 0.3);">
                 <div style="display: flex; align-items: center;">
@@ -313,8 +321,7 @@ with st.sidebar:
         else:
             button_key = f"nav_button_{i}"
             if st.button(f"{icon} {option}", key=button_key, use_container_width=True):
-                page = option
-                st.experimental_rerun()
+                change_page(option)
     
     # Add additional information at the bottom of the sidebar
     st.markdown("<div style='margin-top: 50px;'></div>", unsafe_allow_html=True)
@@ -360,7 +367,7 @@ except Exception as e:
     st.stop()
 
 # Dashboard page
-if page == "Dashboard":
+if st.session_state.page == "Dashboard":
     st.markdown("<h2 class='sub-header'>Market Overview</h2>", unsafe_allow_html=True)
     
     # Key metrics in columns with improved styling
@@ -530,7 +537,7 @@ if page == "Dashboard":
     st.markdown('</div>', unsafe_allow_html=True)
 
 # AI Analysis page
-elif page == "AI Analysis":
+elif st.session_state.page == "AI Analysis":
     st.markdown("<h2 class='sub-header'>AI-Powered Stock Analysis</h2>", unsafe_allow_html=True)
     st.markdown("""
     <div class="highlight" style="background-color: rgba(77, 166, 255, 0.1); border-left: 4px solid #4DA6FF;">
@@ -632,7 +639,7 @@ elif page == "AI Analysis":
             st.warning("Please enter a query to analyze.")
 
 # Data Explorer page
-elif page == "Data Explorer":
+elif st.session_state.page == "Data Explorer":
     st.markdown("<h2 class='sub-header'>Stock Data Explorer</h2>", unsafe_allow_html=True)
     
     # Create a clean container for the explorer
