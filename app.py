@@ -19,23 +19,25 @@ from visualizer import (
 import io
 import sys
 
-# Debug information at startup
-st.write("App startup - Debug Info")
-st.write(f"GROQ_API_KEY exists: {GROQ_API_KEY is not None}")
-st.write(f"Current directory: {os.getcwd()}")
-st.write(f"Directory contents: {os.listdir()}")
-if os.path.exists("data"):
-    st.write(f"Data directory contents: {os.listdir('data')}")
-else:
-    st.write("Data directory not found")
-
-# Configure Streamlit page
+# Configure Streamlit page - MUST BE THE FIRST STREAMLIT COMMAND
 st.set_page_config(
     page_title="StockSense Analyzer", 
     page_icon="📊",
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# Debug information - only show in development mode
+debug_mode = False  # Set to True for debugging
+if debug_mode:
+    st.write("App startup - Debug Info")
+    st.write(f"GROQ_API_KEY exists: {GROQ_API_KEY is not None}")
+    st.write(f"Current directory: {os.getcwd()}")
+    st.write(f"Directory contents: {os.listdir()}")
+    if os.path.exists("data"):
+        st.write(f"Data directory contents: {os.listdir('data')}")
+    else:
+        st.write("Data directory not found")
 
 # Apply custom styling
 st.markdown("""
@@ -72,22 +74,30 @@ page = st.sidebar.radio("Select a page:", ["Dashboard", "AI Analysis", "Data Exp
 
 # Load stock data
 try:
-    st.write("Attempting to load stock data...")
-    df = load_stock_data()
-    stats = get_stock_statistics(df)
-    st.write("Data loading successful!")
+    # Create a placeholder for loading message
+    with st.spinner("Loading stock data..."):
+        df = load_stock_data()
+        stats = get_stock_statistics(df)
 except Exception as e:
     st.error(f"Error loading stock data: {e}")
     
-    # Fallback to sample.csv
-    st.info("Trying to load from sample.csv instead...")
+    # Create sample data as a fallback
+    st.info("Creating sample data for demonstration...")
     try:
-        df = pd.read_csv("sample.csv")
+        # Create minimal sample data with required columns
+        data = {
+            'Stock Symbol': ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA'],
+            'Stock Name': ['Apple Inc.', 'Microsoft Corp.', 'Alphabet Inc.', 'Amazon.com Inc.', 'Tesla Inc.'],
+            'Price': [150.25, 290.50, 2800.75, 3250.50, 650.75],
+            'P/E Ratio': [28.5, 35.6, 30.2, 65.8, 120.5],
+            'Performance (%)': [12.5, 8.2, 15.7, 6.8, 5.0],
+            'Sector': ['Technology', 'Technology', 'Technology', 'Consumer Services', 'Automotive']
+        }
+        df = pd.DataFrame(data)
         stats = get_stock_statistics(df)
-        st.success("Successfully loaded data from sample.csv")
+        st.success("Successfully created sample data")
     except Exception as e2:
-        st.error(f"Failed to load sample data: {e2}")
-        st.info("Please check the data file path in the configuration.")
+        st.error(f"Failed to create sample data: {e2}")
         st.stop()
 
 # Dashboard page
@@ -148,15 +158,15 @@ elif page == "AI Analysis":
     st.markdown("<p class='highlight'>Ask questions about the stock data in natural language. Our AI will analyze the data and provide insights.</p>", unsafe_allow_html=True)
     
     # Check if API key is available
-    if not GROQ_API_KEY:
-        st.warning("Groq API key is not configured. Please set it in the configuration.")
-        st.info("For demo purposes, pre-computed analysis results will be shown.")
+    api_missing = GROQ_API_KEY is None
+    if api_missing:
+        st.warning("Groq API key is not configured. Running in demo mode.")
+        st.info("To enable full AI features, set GROQ_API_KEY in Streamlit secrets.")
         st.markdown("### Sample Queries and Results")
         st.markdown("- **What is the stock price of AAPL?** The stock price of AAPL is $145.30.")
         st.markdown("- **What is the performance of TSLA?** The performance of TSLA is 5.0%.")
         st.markdown("- **What is the PE ratio of MSFT?** The P/E Ratio of MSFT is 35.6.")
         st.markdown("- **Which stock has the highest price?** The stock with the highest price is Amazon (AMZN) with a price of $3300.50.")
-        st.stop()
     
     # User query input
     query = st.text_input("Enter your question about the stock data:", placeholder="e.g., What is the average P/E ratio of technology stocks?")

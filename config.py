@@ -5,6 +5,7 @@ Loads environment variables and provides configuration settings.
 
 import os
 from dotenv import load_dotenv
+import streamlit as st
 
 # Try to load environment variables from .env file
 try:
@@ -12,8 +13,13 @@ try:
 except Exception as e:
     print(f"Warning: Could not load .env file: {e}")
 
-# API Configuration - only get from environment, no default hardcoded value
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+# API Configuration - Try to get from Streamlit secrets first, then environment
+try:
+    # Check if running in Streamlit Cloud
+    GROQ_API_KEY = st.secrets.get("GROQ_API_KEY", os.getenv("GROQ_API_KEY"))
+except Exception:
+    # Fallback to environment variable
+    GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 # File paths
 DATA_FILE = os.getenv("CSV_FILE_PATH", "data/stocks.csv")
