@@ -10,16 +10,34 @@ from config import DATA_FILE, RESULTS_FILE
 def load_stock_data():
     """
     Load stock data from CSV file and perform basic cleaning.
+    Tries multiple possible file locations to improve deployment compatibility.
     
     Returns:
         pandas.DataFrame: Cleaned stock data
     """
-    # Check if file exists
-    if not os.path.exists(DATA_FILE):
-        raise FileNotFoundError(f"Stock data file not found: {DATA_FILE}")
+    # Try multiple possible file locations
+    possible_paths = [
+        DATA_FILE,
+        "data/stocks.csv",
+        "stocks.csv",
+        "sample.csv"
+    ]
     
-    # Load data
-    df = pd.read_csv(DATA_FILE)
+    df = None
+    errors = []
+    
+    for path in possible_paths:
+        try:
+            if os.path.exists(path):
+                df = pd.read_csv(path)
+                print(f"Successfully loaded data from {path}")
+                break
+        except Exception as e:
+            errors.append(f"Error loading {path}: {str(e)}")
+    
+    if df is None:
+        error_msg = "\n".join(errors)
+        raise FileNotFoundError(f"Could not find or load stock data file. Tried: {possible_paths}. Errors: {error_msg}")
     
     # Basic cleaning
     # Remove duplicate rows based on Stock Symbol

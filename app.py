@@ -19,6 +19,16 @@ from visualizer import (
 import io
 import sys
 
+# Debug information at startup
+st.write("App startup - Debug Info")
+st.write(f"GROQ_API_KEY exists: {GROQ_API_KEY is not None}")
+st.write(f"Current directory: {os.getcwd()}")
+st.write(f"Directory contents: {os.listdir()}")
+if os.path.exists("data"):
+    st.write(f"Data directory contents: {os.listdir('data')}")
+else:
+    st.write("Data directory not found")
+
 # Configure Streamlit page
 st.set_page_config(
     page_title="StockSense Analyzer", 
@@ -62,12 +72,23 @@ page = st.sidebar.radio("Select a page:", ["Dashboard", "AI Analysis", "Data Exp
 
 # Load stock data
 try:
+    st.write("Attempting to load stock data...")
     df = load_stock_data()
     stats = get_stock_statistics(df)
+    st.write("Data loading successful!")
 except Exception as e:
     st.error(f"Error loading stock data: {e}")
-    st.info("Please check the data file path in the configuration.")
-    st.stop()
+    
+    # Fallback to sample.csv
+    st.info("Trying to load from sample.csv instead...")
+    try:
+        df = pd.read_csv("sample.csv")
+        stats = get_stock_statistics(df)
+        st.success("Successfully loaded data from sample.csv")
+    except Exception as e2:
+        st.error(f"Failed to load sample data: {e2}")
+        st.info("Please check the data file path in the configuration.")
+        st.stop()
 
 # Dashboard page
 if page == "Dashboard":
