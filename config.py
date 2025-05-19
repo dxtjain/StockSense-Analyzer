@@ -12,8 +12,8 @@ try:
 except Exception as e:
     print(f"Warning: Could not load .env file: {e}")
 
-# API Configuration - use direct value if environment loading fails
-GROQ_API_KEY = os.getenv("GROQ_API_KEY", "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")
+# API Configuration - only get from environment, no default hardcoded value
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 # File paths
 DATA_FILE = os.getenv("CSV_FILE_PATH", "data/stocks.csv")
